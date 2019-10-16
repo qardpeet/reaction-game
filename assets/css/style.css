@@ -355,6 +355,12 @@ template {
   src: url("../fonts/RobotoMono-Regular.ttf");
 }
 
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
 * {
   font-family: robotoMono;
   font-weight: 400;
@@ -368,6 +374,8 @@ template {
   bottom: 0;
   left: 0;
   right: 0;
+  height: 100%;
+  width: 100%;
   display: grid;
 }
 
@@ -412,7 +420,6 @@ h2 {
 
 h2 {
   margin-top: 0;
-  margin-bottom: 50px;
 }
 
 .btn {

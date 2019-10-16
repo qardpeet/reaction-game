@@ -143,7 +143,7 @@ function tick() {
 
   setTimeout(function() {
     tick();
-  }, 30);
+  }, 50);
 }
 
 tick();
