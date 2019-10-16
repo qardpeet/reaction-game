@@ -13,10 +13,18 @@
   </head>
   <body>
     <div id="reaction-game"></div>
-    <div id="menu">
+    <div id="menu" class="active">
         <h1 id="score"></h1>
         <h2 id="reaction-time-score"></h2>
-        <button class="btn" id="play-button">PLAY AGAIN</button>
+        <button class="btn" id="play-button">PLAY</button>
+        <div class="menu-input">
+          <p>speed</p>
+          <input type="text" id="user-speed" value="1">
+        </div>
+        <div class="menu-input">
+          <p>grid size</p>
+          <input type="text" id="user-size" value="5">
+        </div>
     </div>
     <script src="./assets/js/main.js"></script>
   </body>

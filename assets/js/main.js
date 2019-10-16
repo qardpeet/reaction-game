@@ -2,12 +2,13 @@ const clickSound = new Audio("./assets/media/click.wav");
 const loseSound = new Audio("./assets/media/fail.wav");
 
 const state = {
+  clicksHistory: [],
   cells: [],
+  clicks: [],
   currentlyActiveCell: null,
-  size: 10,
-  speed: 1,
-  active: false,
-  clicks: []
+  size: 4,
+  speed: 0.85,
+  active: false
 };
 
 function populatePage() {
@@ -22,6 +23,12 @@ function populatePage() {
 
   reactionGameElement.style = `grid-template-columns: repeat(${state.size}, 1fr); grid-template-rows: repeat(${state.size}, 1fr)`;
   reactionGameElement.innerHTML = cellsHTML;
+
+  let cells = document.getElementsByClassName("cell");
+
+  for (let cellElement of cells) {
+    cellElement.addEventListener("click", handleCellClick, false);
+  }
 }
 
 function initializeCells() {
@@ -39,11 +46,6 @@ function initializeCells() {
 }
 
 function next() {
-  if (!state.active && state.clicks.length == 0) {
-    state.active = true;
-    tick();
-  }
-
   state.clicks.push(Date.now());
 
   clickSound.cloneNode().play();
@@ -77,52 +79,74 @@ function handleCellClick(e) {
 }
 
 function lose() {
-  state.active = false;
+  state.clicksHistory.push({
+    playedAt: Date.now(),
+    clicks: state.clicks
+  });
+
+  state.cells = [];
+  state.clicks = [];
 
   loseSound.play();
 
   let menuElement = document.getElementById("menu");
   let scoreElement = document.getElementById("score");
   let reactionTimeElement = document.getElementById("reaction-time-score");
+  let userSpeed = document.getElementById("user-speed");
+  let userSize = document.getElementById("user-size");
 
-  scoreElement.innerHTML = `score: ${state.clicks.length}`;
-  reactionTimeElement.innerHTML = "score";
+  userSpeed.value = state.speed;
+  userSize.value = state.size;
+
+  let lastRecordedClicks =
+    state.clicksHistory[state.clicksHistory.length - 1].clicks;
+
+  scoreElement.innerHTML = `score: ${lastRecordedClicks.length}`;
+  reactionTimeElement.innerHTML = `average reaction time: ${calculateReactionTime(
+    lastRecordedClicks
+  )}ms`;
   menuElement.classList.add("active");
 }
 
 function play() {
-  state.cells = [];
-  state.clicks = [];
+  let userSpeed = document.getElementById("user-speed").value;
+  let userSize = document.getElementById("user-size").value;
+
+  state.speed = userSpeed;
+  state.size = userSize;
 
   initializeCells();
   populatePage();
-
-  let cells = document.getElementsByClassName("cell");
-
-  for (let cellElement of cells) {
-    cellElement.addEventListener("click", handleCellClick, false);
-  }
 
   let menuElement = document.getElementById("menu");
   menuElement.classList.remove("active");
 }
 
+function calculateReactionTime(clicks) {
+  if (clicks.length < 2) return 0;
+
+  let count = 0;
+
+  for (let i = clicks.length - 1; i > 0; i--) {
+    count += clicks[i] - clicks[i - 1];
+  }
+
+  return Math.round(count / (clicks.length - 1));
+}
+
 function tick() {
-  if (!state.active) return;
+  if (state.cells.length) {
+    const clickInterval = Date.now() - state.clicks[state.clicks.length - 1];
 
-  const clickInterval = Date.now() - state.clicks[state.clicks.length - 1];
-
-  if (clickInterval > state.speed * 1000) {
-    lose();
-    return;
+    if (clickInterval > state.speed * 1000) lose();
   }
 
   setTimeout(function() {
     tick();
-  }, 50);
+  }, 30);
 }
 
-play();
+tick();
 
 let playButton = document.getElementById("play-button");
 playButton.addEventListener("click", play, false);
